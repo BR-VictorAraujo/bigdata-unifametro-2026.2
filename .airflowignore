@@ -1,0 +1,4 @@
+# Pastas que o Airflow não deve tentar ler como DAGs
+tests/
+sql/
+docs/

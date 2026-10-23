@@ -1,0 +1,8 @@
+# Bibliotecas usadas pela DAG (além do Airflow).
+# Instale com a constraints file do Airflow para versões compatíveis:
+#   pip install "apache-airflow==3.1.0" -r requirements.txt \
+#     --constraint https://raw.githubusercontent.com/apache/airflow/constraints-3.1.0/constraints-3.12.txt
+apache-airflow-providers-standard
+psycopg2-binary
+requests
+pendulum

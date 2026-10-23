@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  testes:
+    name: Testes da DAG (Airflow 3.1 + PostgreSQL)
+    runs-on: ubuntu-latest
+
+    # PostgreSQL de teste, usado pelo teste de integração do upsert
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: "1234"
+          POSTGRES_DB: aula_teste
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      AIRFLOW_VERSION: "3.1.0"
+      PYTHON_VERSION: "3.12"
+      PG_TEST_HOST: localhost
+      PG_TEST_PORT: "5432"
+      PG_TEST_DATABASE: aula_teste
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Instalar Airflow e dependências
+        run: |
+          pip install --upgrade pip
+          pip install "apache-airflow==${AIRFLOW_VERSION}" -r requirements-dev.txt \
+            --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
+
+      - name: Validar sintaxe da DAG
+        run: python -m py_compile dag_contratos_ceara.py
+
+      - name: Inicializar banco de metadados do Airflow
+        run: airflow db migrate
+
+      - name: Rodar os testes
+        run: pytest -v

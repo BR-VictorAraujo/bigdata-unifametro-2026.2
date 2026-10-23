@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Configuração local do editor / Claude Code
+.claude/
+.vscode/
+.idea/
+
+# Arquivos temporários da coleta (caso rode fora do contêiner)
+*.jsonl
